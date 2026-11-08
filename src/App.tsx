@@ -61,8 +61,17 @@ export default function Home() {
       if(file && file.size>30*1024*1024)throw new Error('Please choose a PDF smaller than 30 MB.');
       if(file && !file.name.toLowerCase().endsWith('.pdf') && file.type!=='application/pdf')throw new Error('Please choose a PDF file.');
       setStatus('Checking the physical size of every page…');
-      const { validatePaper, demoPaper } = await import('./lib/paper');
-      const geometry=await validatePaper(file?new Uint8Array(await file.arrayBuffer()):await demoPaper());
+      const { validatePaper } = await import('./lib/paper');
+      let bytes: Uint8Array;
+      if (file) {
+        bytes = new Uint8Array(await file.arrayBuffer());
+      } else {
+        setStatus('Opening The Tortoise and the Hare…');
+        const response = await fetch(`${import.meta.env.BASE_URL}samples/the-tortoise-and-the-hare.pdf`);
+        if (!response.ok) throw new Error('The story sample could not be downloaded. Please try again.');
+        bytes = new Uint8Array(await response.arrayBuffer());
+      }
+      const geometry=await validatePaper(bytes);
       setStatus('Preparing your paper trail…');const pdfjs=await import('pdfjs-dist');pdfjs.GlobalWorkerOptions.workerSrc=`${import.meta.env.BASE_URL}pdf.worker.min.mjs`;
       pdf=await pdfjs.getDocument({data:geometry.renderBytes.slice(),isEvalSupported:false,cMapUrl:`${import.meta.env.BASE_URL}cmaps/`,cMapPacked:true,standardFontDataUrl:`${import.meta.env.BASE_URL}standard_fonts/`,wasmUrl:`${import.meta.env.BASE_URL}wasm/`,stopAtErrors:true}).promise;
       if(pdf.numPages!==geometry.pages.length)throw new Error('The PDF page structure could not be verified.');
@@ -73,7 +82,7 @@ export default function Home() {
         try {const page=await pdf.getPage(i);const content=await page.getTextContent();const text=content.items.map(item=>'str' in item?item.str:'').join(' ');const count=segmenter?Array.from(segmenter.segment(text)).filter(s=>s.isWordLike).length:(text.match(/[\p{L}\p{N}]+/gu)??[]).length;pageWords.push(count);if(!count)textComplete=false;page.cleanup();}catch{pageWords.push(0);textComplete=false;}
       }
       await documentRef.current?.destroy();documentRef.current=pdf;
-      setPaper({...geometry,renderBytes:new Uint8Array(),name:file?.name??'A little field guide.pdf',pdf,words:pageWords.reduce((a,b)=>a+b,0),pageWords,textComplete});
+      setPaper({...geometry,renderBytes:new Uint8Array(),name:file?.name??'The Tortoise and the Hare.pdf',pdf,words:pageWords.reduce((a,b)=>a+b,0),pageWords,textComplete});
       engine.current=new Run(geometry.pages.map(p=>p.heightMm));setPhase('ready');redraw(v=>v+1);
     } catch(e) {await pdf?.destroy();const message=e instanceof Error?e.message:'This file could not be opened.';setError(/encrypt|password/i.test(message)?'This PDF is password protected. Please choose an unlocked copy.':message);setPhase(paper?'ready':'home');}
     finally{loading.current=false;if(input.current)input.current.value='';}

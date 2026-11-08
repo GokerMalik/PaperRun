@@ -1,4 +1,4 @@
-import { PDFDocument, PDFArray, PDFDict, PDFName, PDFNumber, StandardFonts, rgb } from 'pdf-lib';
+import { PDFDocument, PDFArray, PDFDict, PDFName, PDFNumber } from 'pdf-lib';
 
 export const MM_PER_UNIT = 25.4 / 72;
 export type PageSize = { index: number; widthMm: number; heightMm: number; startMm: number; box: number[]; unit: number; rotation: number };
@@ -62,45 +62,4 @@ export async function validatePaper(bytes: Uint8Array): Promise<PaperGeometry> {
   if (problems.length) throw new Error(`This PDF cannot be used. ${problems.slice(0, 5).join(' ')}${problems.length > 5 ? ` And ${problems.length - 5} more pages.` : ''} No replacement sizes were assigned.`);
   if (!Number.isFinite(totalMm)) throw new Error('The total physical length is invalid.');
   return { pages, totalMm, renderBytes: await doc.save({ useObjectStreams: false }) };
-}
-
-export async function demoPaper(): Promise<Uint8Array> {
-  const doc = await PDFDocument.create();
-  const regular = await doc.embedFont(StandardFonts.TimesRoman);
-  const bold = await doc.embedFont(StandardFonts.TimesRomanBold);
-  const sans = await doc.embedFont(StandardFonts.Helvetica);
-  const sections = [
-    ['01', 'The art of moving forward', 'A tiny field guide to finding your stride'],
-    ['02', 'One step, then another', 'Small movements. Surprisingly good momentum.'],
-    ['03', 'The finish is a beginning', 'Every paper deserves a victory lap.'],
-  ];
-  const paragraphs = [
-    'Progress rarely arrives in one dramatic leap. More often, it is a',
-    'collection of small movements: a sentence read, an idea explored,',
-    'a foot placed just ahead of the other. This is a paper about those',
-    'small beginnings, and the curious places they can take us.',
-    '',
-    'Consider the humble page. A sheet of A4 paper is 297 millimetres',
-    'tall. Three sheets laid end to end form a course just under a metre.',
-    'It is a modest distance, but every millimetre is real. There are no',
-    'shortcuts here: only you, your fingertips, and the paper ahead.',
-    '',
-    'Find a comfortable rhythm. Slide one finger, lift, and let the other',
-    'take its turn. Speed is interesting, but rhythm is what makes the',
-    'journey enjoyable. Pause when you need to. Begin again when',
-    'you are ready. The next page will still be waiting for you.',
-  ];
-  for (const [number, title, sub] of sections) {
-    const page = doc.addPage([210 / MM_PER_UNIT, 297 / MM_PER_UNIT]);
-    page.drawText('P A P E R R U N   /   F I E L D   N O T E S', { x: 52, y: 780, size: 9, font: sans, color: rgb(.42,.37,.55) });
-    page.drawText(number, { x: 52, y: 685, size: 58, font: bold, color: rgb(.43,.29,.75) });
-    page.drawText(title, { x: 52, y: 635, size: 27, font: bold });
-    page.drawText(sub, { x: 52, y: 609, size: 12, font: regular });
-    let y = 555;
-    for (const line of [...paragraphs, '', ...paragraphs.slice(0, 4)]) {
-      page.drawText(line, { x: 52, y, size: 13, font: regular, color: rgb(.2,.2,.23) }); y -= 19;
-    }
-    page.drawText(`PAPER RUN  /  ${number}                                              210 x 297 mm`, { x: 52, y: 45, size: 9, font: sans });
-  }
-  return doc.save();
 }

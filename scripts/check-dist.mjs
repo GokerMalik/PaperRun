@@ -48,6 +48,9 @@ for (const folder of ['cmaps', 'standard_fonts', 'wasm']) {
   }
 }
 const notices = readFileSync(join(dist, 'THIRD_PARTY_NOTICES.txt'));
+assert.deepEqual(readFileSync(join(dist, 'samples/the-tortoise-and-the-hare.pdf')),
+  readFileSync('public/samples/the-tortoise-and-the-hare.pdf'), 'Missing or changed built-in story PDF');
+assert.ok(browserCode.includes(base + 'samples/the-tortoise-and-the-hare.pdf'), 'Story URL does not use the Pages path');
 assert.deepEqual(notices, readFileSync('public/THIRD_PARTY_NOTICES.txt'));
 assert.ok(notices.length > 1000, 'Generated dependency notices are unexpectedly empty');
 console.log(`Verified GitHub Pages output at ${base}: HTML assets, runtime PDF URLs, ${pdfAssets} PDF assets, and licence notices.`);

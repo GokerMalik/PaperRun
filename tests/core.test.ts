@@ -1,11 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { PDFDocument, PDFName, PDFNumber, degrees } from 'pdf-lib';
-import { validatePaper, demoPaper, MM_PER_UNIT } from '../src/lib/paper.ts';
+import { validatePaper, MM_PER_UNIT } from '../src/lib/paper.ts';
 import { Run } from '../src/lib/run.ts';
 import { supportsMobileRun } from '../src/lib/device.ts';
 const near = (a:number,b:number) => assert.ok(Math.abs(a-b)<1e-7, `${a} differs from ${b}`);
-test('demo has three real A4 pages', async()=>{const result=await validatePaper(await demoPaper());near(result.totalMm,891);assert.equal(result.pages.length,3);});
+test('bundled story has six real A4 pages', async()=>{const bytes=await readFile(new URL('../public/samples/the-tortoise-and-the-hare.pdf',import.meta.url));const result=await validatePaper(bytes);assert.ok(Math.abs(result.totalMm-1782)<0.001);assert.equal(result.pages.length,6);for(const page of result.pages){assert.ok(Math.abs(page.widthMm-210)<0.001);assert.ok(Math.abs(page.heightMm-297)<0.001);}});
 test('mixed sizes, rotation and UserUnit are measured individually', async()=>{const d=await PDFDocument.create();d.addPage([72,144]);const p=d.addPage([72,144]);p.setRotation(degrees(90));p.node.set(PDFName.of('UserUnit'),PDFNumber.of(2));const r=await validatePaper(await d.save());near(r.pages[0].heightMm,50.8);near(r.pages[1].heightMm,50.8);near(r.pages[1].widthMm,101.6);near(r.totalMm,101.6);});
 test('valid inherited MediaBox is accepted',async()=>{const d=await PDFDocument.create();const p=d.addPage([72,144]);const box=p.node.get(PDFName.of('MediaBox'))!;p.node.Parent()!.set(PDFName.of('MediaBox'),box);p.node.delete(PDFName.of('MediaBox'));const r=await validatePaper(await d.save());near(r.totalMm,50.8);});
 test('one missing page size rejects whole document, without viewer fallback',async()=>{const d=await PDFDocument.create();d.addPage([72,144]);const p=d.addPage([72,144]);p.node.delete(PDFName.of('MediaBox'));await assert.rejects(validatePaper(await d.save()),/Page 2: missing/);});

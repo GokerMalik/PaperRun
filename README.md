@@ -16,9 +16,9 @@ See [Vite's GitHub Pages guide](https://vite.dev/guide/static-deploy#github-page
 
 ## Example PDFs
 
-For a story-shaped test file, the Library of Congress provides [Snow White and other stories by the brothers Grimm](https://www.loc.gov/item/23006927/), a 1922 English edition with a downloadable PDF. The Library marks this book as public domain and free to use and reuse. Download it yourself and select it in PaperRun; it is intentionally not bundled with this repository.
+**Try a sample** opens the bundled [The Tortoise and the Hare PDF](public/samples/the-tortoise-and-the-hare.pdf). This is an actual six-page illustrated storybook, with real A4 dimensions (1.782 m total), five pages of selectable story text, and a final wordless illustration of the tortoise and hare dancing together. The last page intentionally contributes zero words to the statistics. The story is an original retelling of the traditional Aesop fable, with original AI-generated illustrations created for PaperRun using ChatGPT. No scanned book or downloaded edition is included.
 
-Project Gutenberg also provides [Snow-White; or, The House in the Wood](https://www.gutenberg.org/ebooks/49724), which is public domain in the United States. Copyright status can differ by country, so the Library of Congress edition is the simpler recommendation for this project.
+The PDF is intentionally tracked in `public/samples/` and copied into the GitHub Pages build. It is downloaded from the same site only when the sample is selected. Uploaded user PDFs still stay on the device. The runtime no longer creates the example from basic drawing primitives.
 
 ## Development
 
