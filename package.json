@@ -13,7 +13,7 @@
     "prebuild": "node scripts/prepare-pdf-assets.mjs",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --port 4173",
-    "test": "node --experimental-strip-types --test tests/core.test.ts",
+    "test": "node --experimental-strip-types --test tests/core.test.ts tests/pdf-compat.test.ts",
     "check:dist": "node scripts/check-dist.mjs"
   },
   "dependencies": {

@@ -4,6 +4,7 @@ import type { PDFDocumentProxy } from 'pdfjs-dist';
 import type { PaperGeometry } from './lib/paper';
 import { Run, clock } from './lib/run';
 import { supportsMobileRun } from './lib/device';
+import { loadPdfRenderer } from './lib/pdf';
 type Paper = PaperGeometry & { name: string; pdf: PDFDocumentProxy; words: number; pageWords: number[]; textComplete: boolean };
 type Phase = 'home' | 'loading' | 'ready' | 'running' | 'paused' | 'finished';
 
@@ -72,7 +73,7 @@ export default function Home() {
         bytes = new Uint8Array(await response.arrayBuffer());
       }
       const geometry=await validatePaper(bytes);
-      setStatus('Preparing your paper trail…');const pdfjs=await import('pdfjs-dist');pdfjs.GlobalWorkerOptions.workerSrc=`${import.meta.env.BASE_URL}pdf.worker.min.mjs`;
+      setStatus('Preparing your paper trail…');const pdfjs=await loadPdfRenderer(`${import.meta.env.BASE_URL}pdf.worker.min.mjs`);
       pdf=await pdfjs.getDocument({data:geometry.renderBytes.slice(),isEvalSupported:false,cMapUrl:`${import.meta.env.BASE_URL}cmaps/`,cMapPacked:true,standardFontDataUrl:`${import.meta.env.BASE_URL}standard_fonts/`,wasmUrl:`${import.meta.env.BASE_URL}wasm/`,stopAtErrors:true}).promise;
       if(pdf.numPages!==geometry.pages.length)throw new Error('The PDF page structure could not be verified.');
       const pageWords:number[]=[];let textComplete=true;

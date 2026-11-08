@@ -63,6 +63,10 @@ Preview the production build at `http://localhost:4173/PaperRun/`. The build inc
 
 Core tests cover missing/inherited/invalid sizes, rotation, UserUnit, CropBox, event-frequency independence, alternating fingers, continuous timing through pauses and phone sleep, finish clamping, live-speed decay, and mobile/desktop device detection. PDF.js assets are served from the same site rather than an external CDN.
 
+PDF rendering uses the official PDF.js **legacy** API and matching worker from the pinned package version. This includes compatibility polyfills for older browsers, including `Promise.withResolvers`, whose absence can prevent PDFs from opening on older Safari. The worker URL includes its version and build type to avoid reusing a cached modern worker. See the [matching upstream Safari report](https://github.com/mozilla/pdf.js/issues/20479). This does not guarantee support for every older browser or embedded webview.
+
+The PDF compatibility regression removes recent JavaScript APIs independently in the main test process and a separate worker thread, then loads and extracts text from all six sample pages. It also verifies that the previous modern build fails without `Promise.withResolvers`. This simulates missing APIs; it does not replace testing on a physical iPhone. The deployment check requires an exact copy of the legacy worker and its bundled polyfill notice.
+
 PDF geometry follows ISO 32000-1:2008, sections 7.7.3.3 and 14.11.2: https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf
 
 ## Acknowledgements

@@ -36,7 +36,7 @@ for (const asset of ['pdf.worker.min.mjs', 'cmaps/', 'standard_fonts/', 'wasm/']
 // Require exact copies of the worker, font/CMap/WASM assets and all their notices.
 const pdfSource = resolve('node_modules/pdfjs-dist');
 assert.deepEqual(readFileSync(join(dist, 'pdf.worker.min.mjs')),
-  readFileSync(join(pdfSource, 'build/pdf.worker.min.mjs')));
+  readFileSync(join(pdfSource, 'legacy/build/pdf.worker.min.mjs')));
 let pdfAssets = 1;
 for (const folder of ['cmaps', 'standard_fonts', 'wasm']) {
   const files = filesUnder(join(pdfSource, folder));
@@ -52,5 +52,7 @@ assert.deepEqual(readFileSync(join(dist, 'samples/the-tortoise-and-the-hare.pdf'
   readFileSync('public/samples/the-tortoise-and-the-hare.pdf'), 'Missing or changed built-in story PDF');
 assert.ok(browserCode.includes(base + 'samples/the-tortoise-and-the-hare.pdf'), 'Story URL does not use the Pages path');
 assert.deepEqual(notices, readFileSync('public/THIRD_PARTY_NOTICES.txt'));
+assert.ok(notices.toString().includes(readFileSync('scripts/notices/core-js-3.45.1-LICENSE.txt', 'utf8').trim()),
+  'Missing licence for the polyfills bundled into PDF.js legacy');
 assert.ok(notices.length > 1000, 'Generated dependency notices are unexpectedly empty');
 console.log(`Verified GitHub Pages output at ${base}: HTML assets, runtime PDF URLs, ${pdfAssets} PDF assets, and licence notices.`);

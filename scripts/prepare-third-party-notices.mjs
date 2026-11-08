@@ -50,6 +50,18 @@ visitPackage('tailwindcss');
 // tool dependencies are not shipped, so include only Vite's own notices here.
 visitPackage('vite', root, false);
 const pdfDirectory = locatePackage('pdfjs-dist');
+// PDF.js bundles core-js into its legacy builds without declaring it as an npm
+// dependency. Preserve the matching upstream MIT notice in the deployed site.
+const bundledPolyfillVersion = '3.45.1';
+for (const bundle of ['pdf.mjs', 'pdf.worker.mjs']) {
+  const code = readFileSync(join(pdfDirectory, 'legacy/build', bundle), 'utf8');
+  const versions = [...code.matchAll(/core-js\/blob\/v([^/]+)\/LICENSE/g)].map(match => match[1]);
+  if (!versions.length || versions.some(version => version !== bundledPolyfillVersion)) {
+    throw new Error(`Review the bundled core-js licence after updating PDF.js: ${bundle}`);
+  }
+}
+index.push(`core-js@${bundledPolyfillVersion} | MIT | bundled in PDF.js legacy builds`);
+includeNotice(resolve('scripts/notices'), `core-js-${bundledPolyfillVersion}-LICENSE.txt`, `core-js@${bundledPolyfillVersion}`);
 for (const folder of ['cmaps', 'standard_fonts', 'wasm']) {
   const assetDirectory = join(pdfDirectory, folder);
   const notices = readdirSync(assetDirectory).filter(file => /^(licen[sc]e|notice|copying|copyright)/i.test(file)).sort();
