@@ -43,7 +43,8 @@ export default function Home() {
   const [mobile,setMobile]=useState<boolean|null>(null);
   useEffect(() => {
     const device = navigator as Navigator & { userAgentData?: { mobile?: boolean } };
-    setMobile(supportsMobileRun({ userAgent: device.userAgent, platform: device.platform, maxTouchPoints: device.maxTouchPoints, mobileHint: device.userAgentData?.mobile }));
+    const desktopTest = new URLSearchParams(window.location.search).get('desktop-test') === '1';
+    setMobile(desktopTest || supportsMobileRun({ userAgent: device.userAgent, platform: device.platform, maxTouchPoints: device.maxTouchPoints, mobileHint: device.userAgentData?.mobile }));
   }, []);
   const [phase,setPhase]=useState<Phase>('home'); const [paper,setPaper]=useState<Paper|null>(null);
   const [error,setError]=useState(''); const [status,setStatus]=useState(''); const [dragging,setDragging]=useState(false); const [help,setHelp]=useState(false);
