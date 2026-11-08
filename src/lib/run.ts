@@ -6,7 +6,7 @@ export class Run {
   finishedAt: number | null = null;
   paused = true;
   lastSide: number | null = null;
-  stroke: { id: number; side: number; minY: number; moved: boolean } | null = null;
+  stroke: { id: number; side: number; lastY: number; moved: boolean } | null = null;
   splits: { page: number; seconds: number; mm: number }[] = [];
   samples: Sample[] = [{ seconds: 0, mm: 0 }];
   heights: number[];
@@ -23,13 +23,13 @@ export class Run {
   pause(now: number) { this.sample(now); this.paused = true; this.end(); }
   begin(id: number, side: number, y: number) {
     if (this.startedAt === null || this.paused || this.finishedAt !== null || this.stroke || this.lastSide === side) return false;
-    this.stroke = { id, side, minY: y, moved: false }; return true;
+    this.stroke = { id, side, lastY: y, moved: false }; return true;
   }
   move(id: number, y: number, now: number) {
     if (!this.stroke || this.stroke.id !== id || this.startedAt === null || this.paused || this.finishedAt !== null) return;
-    const delta = Math.max(0, this.stroke.minY - y);
-    this.stroke.minY = Math.min(this.stroke.minY, y);
-    if (delta === 0) return;
+    const delta = y - this.stroke.lastY;
+    if (delta <= 0) return;
+    this.stroke.lastY = y;
     this.stroke.moved = true;
     this.advance(delta * MM_PER_CSS_PIXEL, now);
   }

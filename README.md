@@ -14,6 +14,12 @@ For a repository named `PaperRun`, the usual URL is `https://<username>.github.i
 
 See [Vite's GitHub Pages guide](https://vite.dev/guide/static-deploy#github-pages) and [GitHub's workflow documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
 
+## Example PDFs
+
+For a story-shaped test file, the Library of Congress provides [Snow White and other stories by the brothers Grimm](https://www.loc.gov/item/23006927/), a 1922 English edition with a downloadable PDF. The Library marks this book as public domain and free to use and reuse. Download it yourself and select it in PaperRun; it is intentionally not bundled with this repository.
+
+Project Gutenberg also provides [Snow-White; or, The House in the Wood](https://www.gutenberg.org/ebooks/49724), which is public domain in the United States. Copyright status can differ by country, so the Library of Congress edition is the simpler recommendation for this project.
+
 ## Development
 
 Requires Node.js 22.13+ and npm. The deployment workflow uses Node.js 22.
@@ -25,7 +31,7 @@ npm run dev
 
 The local development URL is `http://localhost:5173/PaperRun/`. Both development and local production previews use `/PaperRun/` to exercise the same nested paths as the project site. Asset preparation and licence generation run automatically before development and production builds.
 
-Open the site on a phone or tablet with multitouch support. Choose a PDF or select **Try a sample**, then swipe upwards in alternating left/right pads. Desktop browsers show “Please use a mobile device” in place of the upload controls. Running accepts touch input only; mouse, keyboard, and wheel movement cannot advance the course. For a phone on the same network, use `npm run dev -- --host=0.0.0.0` and visit `http://<computer-LAN-IP>:5173/PaperRun/`; the phone's own localhost does not point to your computer.
+Open the site on a phone or tablet with multitouch support. Choose a PDF or select **Try a sample**, then swipe down in either lane, alternating fingers. The visible paper is turned upside-down to match the running gesture; physical dimensions and page distance are unchanged. Desktop browsers show “Please use a mobile device” in place of the upload controls. Running accepts touch input only; mouse, keyboard, and wheel movement cannot advance the course. For a phone on the same network, use `npm run dev -- --host=0.0.0.0` and visit `http://<computer-LAN-IP>:5173/PaperRun/`; the phone's own localhost does not point to your computer.
 
 ## Measurement and validation
 
