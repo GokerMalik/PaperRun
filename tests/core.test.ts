@@ -20,3 +20,42 @@ test('repeated pause and resume never reset the race clock',()=>{const r=new Run
 test('phones and tablets are accepted, including iPad desktop mode',()=>{for(const signals of [{userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) Mobile',platform:'iPhone',maxTouchPoints:5},{userAgent:'Mozilla/5.0 (Linux; Android 15; Pixel 9) Mobile',platform:'Linux armv8l',maxTouchPoints:5,mobileHint:true},{userAgent:'Mozilla/5.0 (Linux; Android 15; Tablet)',platform:'Linux armv8l',maxTouchPoints:5,mobileHint:false},{userAgent:'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15) Safari',platform:'MacIntel',maxTouchPoints:5}])assert.equal(supportsMobileRun(signals),true);});
 test('PCs are rejected even with touchscreens; touch is required on mobile',()=>{for(const signals of [{userAgent:'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',platform:'Win32',maxTouchPoints:10,mobileHint:false},{userAgent:'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15)',platform:'MacIntel',maxTouchPoints:0},{userAgent:'Mozilla/5.0 (X11; Linux x86_64)',platform:'Linux x86_64',maxTouchPoints:10},{userAgent:'Mozilla/5.0 (iPhone) Mobile',platform:'iPhone',maxTouchPoints:0,mobileHint:true}])assert.equal(supportsMobileRun(signals),false);});
 test('idle speed decays to zero and cancelled strokes release',()=>{const r=new Run([1000]);r.resume(0);r.begin(1,0,100);r.move(1,4,1000);r.end(1);r.sample(2000);near(r.speed(3000),0);assert.equal(r.begin(2,1,100),true);r.end(2);assert.equal(r.begin(3,1,100),true);});
+
+test('the runner leads with the swiped foot, independent of pointer event frequency', () => {
+  const left = new Run([10, 100]);
+  const right = new Run([10, 100]);
+  left.resume(0);
+  right.resume(0);
+  left.begin(1, 0, 0);
+  right.begin(2, 1, 0);
+  left.move(1, 120, 120);
+  for (let y = 1; y <= 120; y++) right.move(2, y, y);
+  assert.ok(left.footLead > 0.5);
+  near(left.footLead, -right.footLead);
+
+  left.end(1);
+  left.begin(2, 1, 0);
+  left.move(2, 120, 240);
+  assert.ok(left.footLead < -0.5);
+});
+
+test('the runner holds its pose until another movement earns distance', () => {
+  const run = new Run([100]);
+  run.resume(0);
+  run.begin(1, 0, 100);
+  run.move(1, 150, 100);
+  const pose = run.footLead;
+  run.move(1, 120, 200);
+  run.move(1, 150, 300);
+  run.move(2, 250, 400);
+  run.end(1);
+  assert.equal(run.begin(2, 0, 100), false);
+  run.move(2, 250, 500);
+  run.begin(3, 1, 100);
+  run.end(3);
+  run.sample(1000);
+  run.pause(2000);
+  run.move(3, 250, 3000);
+  run.resume(4000);
+  near(run.footLead, pose);
+});

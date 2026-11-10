@@ -2,6 +2,7 @@ export const MM_PER_CSS_PIXEL = 25.4 / 96;
 export type Sample = { seconds: number; mm: number };
 export class Run {
   distance = 0;
+  footLead = 0; // Neutral at 0, left foot forward at +1, right at -1.
   startedAt: number | null = null;
   finishedAt: number | null = null;
   paused = true;
@@ -31,7 +32,12 @@ export class Run {
     if (delta <= 0) return;
     this.stroke.lastY = y;
     this.stroke.moved = true;
+    const targetLead = this.stroke.side === 0 ? 1 : -1;
+    const previousDistance = this.distance;
     this.advance(delta * MM_PER_CSS_PIXEL, now);
+    // Every 12 mm of accepted travel closes half the swing toward this foot.
+    const remaining = 0.5 ** ((this.distance - previousDistance) / 12);
+    this.footLead = targetLead + (this.footLead - targetLead) * remaining;
   }
   end(id?: number) {
     if (this.stroke && (id === undefined || this.stroke.id === id)) {

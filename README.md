@@ -33,6 +33,8 @@ The local development URL is `http://localhost:5173/PaperRun/`. Both development
 
 Open the site on a phone or tablet with multitouch support. Choose a PDF or select **Try a sample**, then swipe down in either lane, alternating fingers. The paper stays in its normal reading direction while the course advances and the view scrolls upward. Desktop browsers show “Please use a mobile device” in place of the upload controls. Running accepts touch input only; mouse, keyboard, and wheel movement cannot advance the course. For a phone on the same network, use `npm run dev -- --host=0.0.0.0` and visit `http://<computer-LAN-IP>:5173/PaperRun/`; the phone's own localhost does not point to your computer.
 
+The athlete’s shoes mark the “YOU ARE HERE” line. Each downward swipe brings the corresponding foot forward, and lifting your finger holds the pose. The athlete stands still when reduced motion is enabled.
+
 For desktop testing only, append `?desktop-test=1` to the URL, for example `https://<username>.github.io/PaperRun/?desktop-test=1`. This deliberately bypasses the mobile-device gate so the PDF validation, loading, rendering, and dashboard can be tested with a mouse. It does not change the touch-only swipe handling; use a touch-capable browser or test the run engine separately for gesture input.
 
 ## Measurement and validation
